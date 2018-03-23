@@ -92,11 +92,11 @@ stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], but
 		#emit LCTRL 5
 		#emit SCTRL 4
 
-		ShowPlayerDialog(playerid, 32700, style, caption, string, button1, button2);
+		ShowPlayerDialog(playerid, 666, style, caption, string, button1, button2);
 	}
 	else
 	{
-		ShowPlayerDialog(playerid, 32700, style, caption, info, button1, button2);
+		ShowPlayerDialog(playerid, 666, style, caption, info, button1, button2);
 	}
 	s_DialogOpened[playerid] = 1;
 
@@ -116,14 +116,36 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	}
 
 	// Sanitize inputs.
-	for (new i = 0, l = strlen(inputtext); i < l; i ++)
+	for(new i; inputtext[i] != EOS; i++)
 	{
 		if (inputtext[i] == '%')
 		{
 			inputtext[i] = '#';
 		}
+		if (inputtext[i] == '{')
+		{
+			for(new j = i + 1; j - i < 7; j++)
+			{
+				if ((inputtext[j] >= '0' && inputtext[j] <= '9') || (inputtext[j] >= 'A' && inputtext[j] <= 'F'))
+				{
+					if (j - i == 6 && inputtext[j + 1] == '}')
+					{
+						strdel(inputtext, i, j + 2);
+						i--;
+					}
+				}
+				else break;
+			}
+		}
 	}
-	if (dialogid == 32700 && strlen(s_DialogName[playerid]) > 0)
+	/*for (new i = 0, l = strlen(inputtext); i < l; i ++)
+	{
+		if (inputtext[i] == '%')
+		{
+			inputtext[i] = '#';
+		}
+	}*/
+	if (dialogid == 666 && strlen(s_DialogName[playerid]) > 0)
 	{
 		new
 			string[40];
@@ -131,7 +153,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		strcat(string, "dialog_");
 		strcat(string, s_DialogName[playerid]);
 
-		Dialog_Close(playerid);
+		s_DialogName[playerid]{0} = 0;
+		s_DialogOpened[playerid] = 0;
 
 		if ((s_Public == -1) || (CallLocalFunction("OnDialogPerformed", "dsdd", playerid, string[7], response, funcidx(string) != -1)))
 		{
