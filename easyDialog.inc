@@ -46,12 +46,12 @@ forward @dialog_format(); @dialog_format() {
 forward Dialog_IsOpened(playerid);
 public Dialog_IsOpened(playerid)
 {
-	return (s_DialogOpened[playerid]);
+	return (s_DialogOpened[playerid]==-1?0:1);
 }
 
 stock Dialog_Close(playerid)
 {
-	s_DialogOpened[playerid] = 0;
+	s_DialogOpened[playerid] = -1;
 
 	return ShowPlayerDialog(playerid, -1, DIALOG_STYLE_MSGBOX, " ", " ", " ", "");
 }
@@ -136,8 +136,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 		}
 	}
-	// Dialog ID 0 is reserved to indicate that the dialog is closed.
-	if (dialogid != 0 && dialogid == s_DialogOpened[playerid] && (-1) < dialogid < 32727)
+	// Dialog ID -1 is reserved to indicate that the dialog is closed.
+	if (dialogid == s_DialogOpened[playerid] && 0 <= dialogid < 32727)
 	{
 		new
 			string[13];
@@ -145,7 +145,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		strcat(string, "dialog_");
 		strcat(string, dialogid);
 
-		s_DialogOpened[playerid] = 0;
+		s_DialogOpened[playerid] = -1;
 
 		if ((s_Public == -1) || (CallLocalFunction("OnDialogPerformed", "dsdd", playerid, string[7], response, funcidx(string) != -1)))
 		{
