@@ -120,6 +120,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			inputtext[i] = '#';
 		}
+		if (inputtext[i] == '{')
+		{
+			for(new j = i + 1; j - i < 7; j++)
+			{
+				if ((inputtext[j] >= '0' && inputtext[j] <= '9') || (inputtext[j] >= 'A' && inputtext[j] <= 'F'))
+				{
+					if (j - i == 6 && inputtext[j + 1] == '}')
+					{
+						strdel(inputtext, i, j + 2);
+						i--;
+					}
+				}
+				else break;
+			}
+		}
 	}
 	// Dialog ID 0 is reserved to indicate that the dialog is closed.
 	if (dialogid != 0 && dialogid == s_DialogOpened[playerid] && (-1) < dialogid < 32727)
@@ -130,7 +145,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		strcat(string, "dialog_");
 		strcat(string, dialogid);
 
-		Dialog_Close(playerid);
+		s_DialogOpened[playerid] = 0;
 
 		if ((s_Public == -1) || (CallLocalFunction("OnDialogPerformed", "dsdd", playerid, string[7], response, funcidx(string) != -1)))
 		{
