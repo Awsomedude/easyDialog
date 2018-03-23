@@ -92,11 +92,11 @@ stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], but
 		#emit LCTRL 5
 		#emit SCTRL 4
 
-		ShowPlayerDialog(playerid, 666, style, caption, string, button1, button2);
+		ShowPlayerDialog(playerid, 32000, style, caption, string, button1, button2);
 	}
 	else
 	{
-		ShowPlayerDialog(playerid, 666, style, caption, info, button1, button2);
+		ShowPlayerDialog(playerid, 32000, style, caption, info, button1, button2);
 	}
 	s_DialogOpened[playerid] = 1;
 
@@ -116,13 +116,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	}
 
 	// Sanitize inputs.
-	for(new i; inputtext[i] != EOS; i++)
+	for (new i = 0, l = strlen(inputtext); i < l; i ++)
 	{
 		if (inputtext[i] == '%')
 		{
 			inputtext[i] = '#';
 		}
-		if (inputtext[i] == '{')
+		else if (inputtext[i] == '{')
 		{
 			for(new j = i + 1; j - i < 7; j++)
 			{
@@ -138,14 +138,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 		}
 	}
-	/*for (new i = 0, l = strlen(inputtext); i < l; i ++)
-	{
-		if (inputtext[i] == '%')
-		{
-			inputtext[i] = '#';
-		}
-	}*/
-	if (dialogid == 666 && strlen(s_DialogName[playerid]) > 0)
+
+	if (dialogid == 32000 && strlen(s_DialogName[playerid]) > 0)
 	{
 		new
 			string[40];
