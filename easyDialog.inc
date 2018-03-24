@@ -10,6 +10,8 @@
 	Created by Emmet on Friday, January 24, 2014.
 
 	Updated by Southclaws 2017-10-13 to add include guard.
+
+	Editted by Kaperstone 23/03/2018 for id-based dialogs.
 */
 
 #if defined _easyDialog_included
@@ -32,7 +34,6 @@
 	(CallRemoteFunction("Dialog_IsOpened", "i", (%0)))
 
 static
-	s_DialogName[MAX_PLAYERS][32 char],
 	s_DialogOpened[MAX_PLAYERS]
 ;
 
@@ -45,18 +46,17 @@ forward @dialog_format(); @dialog_format() {
 forward Dialog_IsOpened(playerid);
 public Dialog_IsOpened(playerid)
 {
-	return (s_DialogOpened[playerid]);
+	return (s_DialogOpened[playerid]==-1?0:1);
 }
 
 stock Dialog_Close(playerid)
 {
-	s_DialogName[playerid]{0} = 0;
-	s_DialogOpened[playerid] = 0;
+	s_DialogOpened[playerid] = -1;
 
 	return ShowPlayerDialog(playerid, -1, DIALOG_STYLE_MSGBOX, " ", " ", " ", "");
 }
 
-stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], button2[], {Float,_}:...)
+stock Dialog_Open(playerid, dialogid, style, caption[], info[], button1[], button2[], {Float,_}:...)
 {
 	static
 		string[4096],
@@ -92,15 +92,13 @@ stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], but
 		#emit LCTRL 5
 		#emit SCTRL 4
 
-		ShowPlayerDialog(playerid, 32700, style, caption, string, button1, button2);
+		ShowPlayerDialog(playerid, dialogid, style, caption, string, button1, button2);
 	}
 	else
 	{
-		ShowPlayerDialog(playerid, 32700, style, caption, info, button1, button2);
+		ShowPlayerDialog(playerid, dialogid, style, caption, info, button1, button2);
 	}
-	s_DialogOpened[playerid] = 1;
-
-	strpack(s_DialogName[playerid], function, 32 char);
+	s_DialogOpened[playerid] = dialogid;
 
 	return 1;
 }
@@ -118,20 +116,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	// Sanitize inputs.
 	for (new i = 0, l = strlen(inputtext); i < l; i ++)
 	{
-		if (inputtext[i] == '%')
+		if (inputtext[i] == '%' || inputtext[i] == '{')
 		{
 			inputtext[i] = '#';
 		}
 	}
-	if (dialogid == 32700 && strlen(s_DialogName[playerid]) > 0)
+	// Dialog ID -1 is reserved to indicate that the dialog is closed.
+	if (dialogid == s_DialogOpened[playerid] && 0 <= dialogid < 32727)
 	{
 		new
-			string[40];
+			string[13];
 
 		strcat(string, "dialog_");
-		strcat(string, s_DialogName[playerid]);
+		strcat(string, dialogid);
 
-		Dialog_Close(playerid);
+		s_DialogOpened[playerid] = -1;
 
 		if ((s_Public == -1) || (CallLocalFunction("OnDialogPerformed", "dsdd", playerid, string[7], response, funcidx(string) != -1)))
 		{
