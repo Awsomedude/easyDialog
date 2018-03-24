@@ -118,24 +118,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	// Sanitize inputs.
 	for (new i = 0, l = strlen(inputtext); i < l; i ++)
 	{
-		if (inputtext[i] == '%')
+		if (inputtext[i] == '%' || inputtext[i] == '{')
 		{
 			inputtext[i] = '#';
-		}
-		else if (inputtext[i] == '{')
-		{
-			for(new j = i + 1; j - i < 7; j++)
-			{
-				if ((inputtext[j] >= '0' && inputtext[j] <= '9') || (inputtext[j] >= 'A' && inputtext[j] <= 'F'))
-				{
-					if (j - i == 6 && inputtext[j + 1] == '}')
-					{
-						strdel(inputtext, i, j + 2);
-						i--;
-					}
-				}
-				else break;
-			}
 		}
 	}
 
