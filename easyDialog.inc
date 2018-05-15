@@ -10,6 +10,7 @@
 	Created by Emmet on Friday, January 24, 2014.
 
 	Updated by Southclaws 2017-10-13 to add include guard.
+	Updated by Akshay Mohan "ParK_iY" on 2017-05-15 with few code optimization.
 */
 
 #if defined _easyDialog_included
@@ -31,9 +32,13 @@
 #define Dialog_Opened(%0) \
 	(CallRemoteFunction("Dialog_IsOpened", "i", (%0)))
 
+#if !defined EASYDIALOG_SANITIZE_INPUT
+	#define     EASYDIALOG_SANITIZE_INPUT       1
+#endif
+
 static
 	s_DialogName[MAX_PLAYERS][32 char],
-	s_DialogOpened[MAX_PLAYERS]
+	bool:s_DialogOpened[MAX_PLAYERS]
 ;
 
 forward OnDialogPerformed(playerid, dialog[], response, success);
@@ -45,13 +50,13 @@ forward @dialog_format(); @dialog_format() {
 forward Dialog_IsOpened(playerid);
 public Dialog_IsOpened(playerid)
 {
-	return (s_DialogOpened[playerid]);
+	return !!(s_DialogOpened[playerid]);
 }
 
 stock Dialog_Close(playerid)
 {
 	s_DialogName[playerid]{0} = 0;
-	s_DialogOpened[playerid] = 0;
+	s_DialogOpened[playerid] = false;
 
 	return ShowPlayerDialog(playerid, -1, DIALOG_STYLE_MSGBOX, " ", " ", " ", "");
 }
@@ -63,7 +68,7 @@ stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], but
 		args
 	;
 
-	if (!strlen(info))
+	if (info[0] == '\0')
 	{
 		return 0;
 	}
@@ -98,7 +103,7 @@ stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], but
 	{
 		ShowPlayerDialog(playerid, 32700, style, caption, info, button1, button2);
 	}
-	s_DialogOpened[playerid] = 1;
+	s_DialogOpened[playerid] = true;
 
 	strpack(s_DialogName[playerid], function, 32 char);
 
@@ -114,7 +119,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	{
 		s_Public = funcidx("OnDialogPerformed");
 	}
-
+#if EASYDIALOG_SANITIZE_INPUT == 1
 	// Sanitize inputs.
 	for (new i = 0, l = strlen(inputtext); i < l; i ++)
 	{
@@ -123,12 +128,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			inputtext[i] = '#';
 		}
 	}
-	if (dialogid == 32700 && strlen(s_DialogName[playerid]) > 0)
+#endif
+	if (dialogid == 32700 && s_DialogName[playerid]{0} != '\0')
 	{
 		new
-			string[40];
+			string[40] = "dialog_";
 
-		strcat(string, "dialog_");
 		strcat(string, s_DialogName[playerid]);
 
 		Dialog_Close(playerid);
