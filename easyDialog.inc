@@ -56,6 +56,10 @@ stock Dialog_Close(playerid)
 	return ShowPlayerDialog(playerid, -1, DIALOG_STYLE_MSGBOX, " ", " ", " ", "");
 }
 
+// So, my problem is at line 59. If I make caption, info, button1 and button2 constant, there will be an error on...
+// ...line 96 and 100 since its an argument type mismatch. I tried to make ShowPlayerDialog's parameters constant, in ...
+// ...a_samp.inc but its not working. Im pretty new to pawn so if this is a stupid PR, or a stupid request from you, Im sorry.
+
 stock Dialog_Open(playerid, function[], style, caption[], info[], button1[], button2[], {Float,_}:...)
 {
 	static
