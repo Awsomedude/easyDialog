@@ -39,6 +39,7 @@ forward OnDialogPerformed(playerid, const dialog[], response, success);
 /**
   * Functions
  */
+
 stock Dialog_Close(playerid)
 {
 	s_DialogName[playerid]{0} = 0;
